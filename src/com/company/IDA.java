@@ -67,8 +67,8 @@ public class IDA {
     }
 
     private boolean isGoal(Node n) {
-        for (int i = 0; i < State.size* State.size; i++) {
-            if (n.state.board[i] != i)
+        for (int i = 0; i < State.size* State.size-1; i++) {
+            if (n.state.board[i] != i+1)
                 return false;
         }
         return true;

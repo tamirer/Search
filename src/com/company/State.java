@@ -120,8 +120,8 @@ public class State {
                 continue;
             int row = getRow(i);
             int col = getCol(i);
-            int expectedRow = getRow(num);
-            int expectedCol = getCol(num);
+            int expectedRow = getRow(num-1);
+            int expectedCol = getCol(num-1);
             res += Math.abs(row - expectedRow) + Math.abs(col - expectedCol);
         }
         return res;

@@ -101,6 +101,14 @@ public class State {
         return (i / size);
     }
 
+    public boolean isGoal() {
+        for (int i = 0; i < State.size* State.size-1; i++) {
+            if (board[i] != i+1)
+                return false;
+        }
+        return true;
+    }
+
     private int getInversions() {
         int res = 0;
         for (int i = 0; i < size*size; i++) {

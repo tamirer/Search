@@ -55,10 +55,11 @@ public class Node {
         if(!(other instanceof Node))
             return false;
         Node otherNode = (Node)other;
-        for (int i = 0; i < state.board.length; i++) {
+
+        /*for (int i = 0; i < state.board.length; i++) {
             if(state.board[i] != otherNode.state.board[i])
                 return false;
-        }
-        return true;
+        }*/
+        return Arrays.equals(state.board,otherNode.state.board);
     }
 }

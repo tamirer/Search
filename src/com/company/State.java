@@ -9,8 +9,12 @@ public class State {
     public enum move {UP, DOWN, LEFT, RIGHT}
 
     public static int size = 3;
+    public static int[] goal4 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0};
+    public static int[] goal3 = {1,2,3,4,5,6,7,8,0};
 
     public int[] board;
+    public int blankIndex;
+    public int[] goal;
 
     public State() {
         while(true) {
@@ -26,48 +30,47 @@ public class State {
             if (isSolvable())
                 break;
         }
-
+        blankIndex=getBlankIndex();
+        goal=size==4? goal4:goal3;
     }
 
-    public State(int... input) {
+    public State(int blank,int... input) {
         this.board = input.clone();
+        blankIndex=blank;
+        goal=size==4? goal4:goal3;
     }
 
     public State applyMove(move m) {
         switch (m) {
             case UP:
-                int blankIndex = getBlankIndex();
                 if (getRow(blankIndex) == 0)
                     return null;
                 int[] newBoard = board.clone();
                 newBoard[blankIndex] = newBoard[blankIndex - size];
                 newBoard[blankIndex - size] = 0;
-                return new State(newBoard);
+                return new State(blankIndex - size,newBoard);
 
             case DOWN:
-                blankIndex = getBlankIndex();
                 if (getRow(blankIndex) == size - 1)
                     return null;
                 newBoard = board.clone();
                 newBoard[blankIndex] = newBoard[blankIndex + size];
                 newBoard[blankIndex + size] = 0;
-                return new State(newBoard);
+                return new State(blankIndex + size,newBoard);
             case LEFT:
-                blankIndex = getBlankIndex();
                 if (getCol(blankIndex) == 0)
                     return null;
                 newBoard = board.clone();
                 newBoard[blankIndex] = newBoard[blankIndex - 1];
                 newBoard[blankIndex - 1] = 0;
-                return new State(newBoard);
+                return new State(blankIndex - 1,newBoard);
             case RIGHT:
-                blankIndex = getBlankIndex();
                 if (getCol(blankIndex) == size - 1)
                     return null;
                 newBoard = board.clone();
                 newBoard[blankIndex] = newBoard[blankIndex + 1];
                 newBoard[blankIndex + 1] = 0;
-                return new State(newBoard);
+                return new State(blankIndex + 1,newBoard);
         }
         return null;
     }
@@ -78,7 +81,7 @@ public class State {
 
     public boolean isSolvable() {
         int inversions = getInversions();
-        int i = getBlankIndex();
+        int i = blankIndex;
         if (size % 2 == 0) {
             if ((size - getRow(i)) % 2 == 0) {
                 return inversions % 2 == 1;
@@ -102,11 +105,12 @@ public class State {
     }
 
     public boolean isGoal() {
-        for (int i = 0; i < State.size* State.size-1; i++) {
+        /*for (int i = 0; i < State.size* State.size-1; i++) {
             if (board[i] != i+1)
                 return false;
         }
-        return true;
+        return true;*/
+        return Arrays.equals(board,goal);
     }
 
     private int getInversions() {

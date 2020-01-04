@@ -20,12 +20,8 @@ public class RBFS {
         nodesDup = 0;
         nodesOpened = new ArrayList<>();
         Stack<Node> path = new Stack<>();
+        path.push(n);
         RBFSHelper(n, Integer.MAX_VALUE-epsilon, path);
-        Node current = path.peek();
-        while (current.parent != null) {
-            current = current.parent;
-            path.push(current);
-        }
         return path;
     }
 
@@ -34,31 +30,44 @@ public class RBFS {
             nodesDup++;
         } else
             nodesOpened.add(n);
+
         if (n.state.isGoal()) {
-            stack.push(n);
             return -1;
         }
+
         List<Node> C = n.expand();
         numberOfExp++;
         if (C.isEmpty())
             return Integer.MAX_VALUE;
+
         for (Node child : C) {
             if (n.f < n.F)
                 child.F = Math.max(n.F, child.f);
             else
                 child.F = child.f;
         }
+
         Node[] temp = bestF(C);
         Node n1 = temp[0];
         Node n2 = temp[1];
         while (n1.F <= B+epsilon && n1.F < Integer.MAX_VALUE) {
-            n1.F = RBFSHelper(n1, Math.min(B, n2.F), stack);
-            if (n1.F == -1)
-                return -1;
+            if (!stack.contains(n1)) {
+                stack.push(n1);
+                n1.F = RBFSHelper(n1, Math.min(B, n2.F), stack);
+                if (n1.F == -1)
+                    return -1;
+                stack.pop();
+            }
+            else{
+                C.remove(n1);
+                if (C.isEmpty())
+                    return Integer.MAX_VALUE;
+            }
             temp = bestF(C);
             n1 = temp[0];
             n2 = temp[1];
         }
+
         return n1.F;
     }
 
@@ -72,6 +81,8 @@ public class RBFS {
                 best2 = n;
             }
         }
+        if(best2==null)
+            best2=best1;
         return new Node[]{best1, best2};
     }
 }

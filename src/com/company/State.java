@@ -1,16 +1,14 @@
 package com.company;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class State {
     public enum move {UP, DOWN, LEFT, RIGHT}
 
-    public static int size = 3;
+    public static int size = 4;
     public static int[] goal4 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0};
     public static int[] goal3 = {1,2,3,4,5,6,7,8,0};
+    public static boolean linearConflict=false;
 
     public int[] board;
     public int blankIndex;
@@ -31,6 +29,25 @@ public class State {
                 break;
         }
         blankIndex=getBlankIndex();
+        goal=size==4? goal4:goal3;
+    }
+
+    public State(int moves){
+        board = goal4.clone();
+        blankIndex=getBlankIndex();
+        Random r = new Random();
+        int l=0;
+        for (int i = 0; i < moves; i++) {
+            int movei = r.nextInt(4);
+            move m = move.values()[movei];
+            State s = applyMove(m);
+            if(s!=null){
+                board = s.board;
+                blankIndex=s.blankIndex;
+                l++;
+            }
+        }
+        System.out.println(l);
         goal=size==4? goal4:goal3;
     }
 
@@ -136,6 +153,33 @@ public class State {
             int expectedCol = getCol(num-1);
             res += Math.abs(row - expectedRow) + Math.abs(col - expectedCol);
         }
-        return res;
+        if(linearConflict)
+            return res+calcH2();
+        else
+            return res;
+    }
+
+    public int calcH2() {
+        int lc=0;
+        for (int i = 0; i < size; i++) {
+            // rows
+            for(int ri=i*size;ri<i*size+size;ri++){
+                if(board[ri]!=0&&(board[ri]-1)/size==ri/size)
+                    for(int j=ri+1;j<i*size+size; j++){
+                        if(board[j]!=0&&(board[j]-1)/size==j/size && board[j]<board[ri])
+                            lc++;
+                    }
+            }
+
+            // cols
+            for(int ci=i;ci<size*size;ci+=size){
+                if(board[ci]!=0&&(board[ci]-1)%size==i%size)
+                    for(int j=ci+size;j<size*size; j+=size){
+                        if(board[j]!=0&&(board[j]-1)%size==j%size && board[j]<board[ci])
+                            lc++;
+                    }
+            }
+        }
+        return lc;
     }
 }

@@ -12,11 +12,12 @@ public class Main {
         //System.out.println(s.isSolvable());
         IDA ida = new IDA();
         RBFS rbfs = new RBFS(0);
-        RBFS rbfs_e1 = new RBFS(4);
+        RBFS rbfs_e1 = new RBFS(6);
         long idaTime = 0, rbfsTime = 0, rbfse1Time = 0;
         long idaExp = 0, rbfsExp = 0, rbfse1Exp = 0;
         long idaDup = 0, rbfsDup = 0, rbfse1Dup = 0;
         long idaLen = 0, rbfsLen = 0, rbfse1Len = 0;
+        State.linearConflict=true;
         try (PrintWriter writer = new PrintWriter(new FileWriter("test.csv", true))) {
             writeToCSV(writer, "Limit",
                     "Total time IDA", "Total time RBFS", "Total time RBFSe",
@@ -26,10 +27,10 @@ public class Main {
                     "Total dups IDA", "Total dups RBFS", "Total dups RBFSe",
                     "Average dups IDA", "Average dups RBFS", "Average dups RBFSe",
                     "Average Solution length IDA", "Average Solution length RBFS", "Average Solution length IDA");
-            for (int limit = 100; limit <= 10000; limit += 100) {
+            for (int limit = 100; limit <= 100; limit += 100) {
 
-                for (int i = limit - 100; i < limit; i++) {
-                    State s = new State();
+                for (int i = limit-100; i < limit; i++) {
+                    State s = new State(120);
                     print(s);
                     Node root = createRoot(s);
 
@@ -37,18 +38,21 @@ public class Main {
                     Stack<Node> d = ida.run(root);
                     idaTime += System.currentTimeMillis() - start;
                     idaLen += d.size();
+                    System.out.println("ida: ");
 
                     root = createRoot(s);
                     start = System.currentTimeMillis();
                     d = rbfs.run(root);
                     rbfsTime += System.currentTimeMillis() - start;
                     rbfsLen += d.size();
+                    System.out.println("rbfs: " + d.size());
 
                     root = createRoot(s);
                     start = System.currentTimeMillis();
                     d = rbfs_e1.run(root);
                     rbfse1Time += System.currentTimeMillis() - start;
                     rbfse1Len += d.size();
+                    System.out.println("rbfse: ");
 
                     idaExp += ida.numberOfExp;
                     rbfsExp += rbfs.numberOfExp;

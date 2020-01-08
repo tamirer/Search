@@ -11,17 +11,18 @@ public class Main {
         //State s = new State(14,2,1,7,6,0,5,4,11,9,12,3,8,13,10,15);
         //System.out.println(s.isSolvable());
         IDA ida = new IDA();
+        IDAM idam = new IDAM();
         RBFS rbfs = new RBFS(0);
-        RBFS rbfs_e1 = new RBFS(6);
-        long idaTime = 0, rbfsTime = 0, rbfse1Time = 0;
+        RBFS rbfs_e1 = new RBFS(4);
+        long idaTime = 0,idamTime = 0, rbfsTime = 0, rbfse1Time = 0;
         long idaExp = 0, rbfsExp = 0, rbfse1Exp = 0;
         long idaDup = 0, rbfsDup = 0, rbfse1Dup = 0;
         long idaLen = 0, rbfsLen = 0, rbfse1Len = 0;
         State.linearConflict=true;
         try (PrintWriter writer = new PrintWriter(new FileWriter("test.csv", true))) {
             writeToCSV(writer, "Limit",
-                    "Total time IDA", "Total time RBFS", "Total time RBFSe",
-                    "Average Time IDA", "Average Time RBFS", "Average Time RBFSe",
+                    "Total time IDA","Total time IDAM", "Total time RBFS", "Total time RBFSe",
+                    "Average Time IDA","Average Time IDAM", "Average Time RBFS", "Average Time RBFSe",
                     "Total expansions IDA", "Total expansions RBFS", "Total expansions RBFSe",
                     "Average expansions IDA", "Average expansions RBFS", "Average expansions RBFSe",
                     "Total dups IDA", "Total dups RBFS", "Total dups RBFSe",
@@ -29,9 +30,9 @@ public class Main {
                     "Average Solution length IDA", "Average Solution length RBFS", "Average Solution length IDA");
             for (int limit = 100; limit <= 100; limit += 100) {
 
-                for (int i = limit-100; i < limit; i++) {
-                    State s = new State(120);
-                    print(s);
+                for (int i = limit - 100; i < limit; i++) {
+                    State s = new State();
+                    print(i,s);
                     Node root = createRoot(s);
 
                     long start = System.currentTimeMillis();
@@ -39,6 +40,11 @@ public class Main {
                     idaTime += System.currentTimeMillis() - start;
                     idaLen += d.size();
                     System.out.println("ida: ");
+
+                    root = createRoot(s);
+                    start = System.currentTimeMillis();
+                    d = idam.run(root);
+                    idamTime += System.currentTimeMillis() - start;
 
                     root = createRoot(s);
                     start = System.currentTimeMillis();
@@ -64,8 +70,8 @@ public class Main {
                 }
 
                 writeToCSV(writer, limit,
-                        idaTime, rbfsTime, rbfse1Time,
-                        (idaTime / limit), (rbfsTime / limit), (rbfse1Time / limit),
+                        idaTime,idamTime, rbfsTime, rbfse1Time,
+                        (idaTime / limit),(idamTime / limit),  (rbfsTime / limit), (rbfse1Time / limit),
                         idaExp, rbfsExp, rbfse1Exp,
                         (idaExp / limit), (rbfsExp / limit), (rbfse1Exp / limit),
                         idaDup, rbfsDup, rbfse1Dup,
@@ -91,12 +97,12 @@ public class Main {
         return new Node(null, s, s.calcH(), 0);
     }
 
-    public static void print(State s) {
+    public static void print(int j, State s) {
         String st = "";
         for (int i:s.board) {
             st+=i+" ";
         }
-        System.out.println(st);
+        System.out.println(j + ">" + st);
     }
 
     public static void writeToCSV(PrintWriter writer, Object... data){

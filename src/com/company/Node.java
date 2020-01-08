@@ -25,6 +25,8 @@ public class Node {
     }
 
     public List<Node> expand() {
+       // if(!children.isEmpty())
+         //   return children;
         List<Node> res = new ArrayList<>();
         State s = state;
         State up = s.applyMove(State.move.UP);

@@ -25,7 +25,7 @@ public class RBFS {
         return path;
     }
 
-    private int RBFSHelper(Node n, int B, Stack<Node> stack) {
+    private int RBFSHelper(Node n, int B, Stack<Node> path) {
         if (nodesOpened.contains(n)) {
             nodesDup++;
         } else
@@ -51,12 +51,12 @@ public class RBFS {
         Node n1 = temp[0];
         Node n2 = temp[1];
         while (n1.F <= B+epsilon && n1.F < Integer.MAX_VALUE) {
-            if (!stack.contains(n1)) {
-                stack.push(n1);
-                n1.F = RBFSHelper(n1, Math.min(B, n2.F), stack);
+            if (!path.contains(n1)) {
+                path.push(n1);
+                n1.F = RBFSHelper(n1, Math.min(B, n2.F), path);
                 if (n1.F == -1)
                     return -1;
-                stack.pop();
+                path.pop();
             }
             else{
                 C.remove(n1);

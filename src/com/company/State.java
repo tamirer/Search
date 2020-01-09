@@ -3,7 +3,10 @@ package com.company;
 import java.util.*;
 
 public class State {
-    public enum move {UP, DOWN, LEFT, RIGHT}
+
+    //TILE PUZZLE
+
+    /*public enum move {UP, DOWN, LEFT, RIGHT}
 
     public static int size = 4;
     public static int[] goal4 = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0};
@@ -126,7 +129,7 @@ public class State {
             if (board[i] != i+1)
                 return false;
         }
-        return true;*/
+        return true;
         return Arrays.equals(board,goal);
     }
 
@@ -181,5 +184,93 @@ public class State {
             }
         }
         return lc;
+    }*/
+
+    List<GraphEdge> edges;
+    List<GraphNode> nodes;
+    GraphNode loc;
+    GraphNode dest;
+    public int totalCost;
+
+    //generate random graph
+    public State() {
+        totalCost = 0;
+        nodes = new ArrayList<>();
+        edges = new ArrayList<>();
+        int numOfNodes = Math.max((int) (Math.random() * (60)),10);
+        int numOfEdges = (int)(numOfNodes*1.5);
+        generateGraph(numOfNodes, numOfEdges);
+        int i = (int) (Math.random() * (numOfNodes-1));
+        int j = (int) (Math.random() * (numOfNodes-1));
+        loc = nodes.get(i);
+        dest = nodes.get(j);
     }
+
+    public State(State state, GraphNode newLoc, int cost) {
+        this.edges = state.edges;
+        this.nodes = state.nodes;
+        this.dest = state.dest;
+        this.loc = newLoc;
+        this.totalCost = cost;
+    }
+
+    private void generateGraph(int numOfNodes, int numOfEdges) {
+        int nodeId = 0, edgeId = 0;
+        LinkedList<GraphNode> initNodes = new LinkedList<>();
+        for (int i = 0; i < numOfNodes; i++, nodeId++) {
+            int x = (int) (Math.random() * 1000);
+            int y = (int) (Math.random() * 1000);
+            GraphNode node = new GraphNode(nodeId, x, y);
+            nodes.add(node);
+            initNodes.add(node);
+        }
+        GraphNode src = initNodes.pop();
+        while (!initNodes.isEmpty()) {
+            GraphNode dst = initNodes.pop();
+            int weight = (int) (Math.random() * 1000);
+            GraphEdge edge = new GraphEdge(edgeId++,src.id,dst.id ,weight);
+            edges.add(edge);
+            src.addNeighbour(dst);
+            dst.addNeighbour(src);
+            src = dst;
+            numOfEdges--;
+        }
+        while (numOfEdges > 0){
+            int i = (int) (Math.random() * (numOfNodes-1));
+            int j = (int) (Math.random() * (numOfNodes-1));
+            if(i == j)
+                continue;
+            int weight = (int) (Math.random() * 1000);
+            GraphEdge edge = new GraphEdge(edgeId++,i,j ,weight);
+            edges.add(edge);
+            nodes.get(i).addNeighbour(nodes.get(j));
+            nodes.get(j).addNeighbour(nodes.get(i));
+            numOfEdges--;
+        }
+    }
+
+    //pitagoras between loc and dest
+    public int calcH() {
+        return (int) Math.sqrt(Math.pow(loc.x - dest.x, 2) + Math.pow(loc.y - dest.y, 2));
+    }
+
+    public State applyMove(GraphNode newLoc) {
+        if (!loc.neighbours.contains(newLoc))
+            return null;
+        return new State(this,newLoc,totalCost + getEdge(loc, newLoc).weight);
+    }
+
+    private GraphEdge getEdge(GraphNode loc, GraphNode newLoc) {
+        for (GraphEdge e : edges) {
+            if ((e.n1 == loc.id && e.n2 == newLoc.id) ||
+                    (e.n1 == newLoc.id && e.n2 == loc.id))
+                return e;
+        }
+        return null;
+    }
+
+    public boolean isGoal() {
+        return loc.id == dest.id;
+    }
+
 }

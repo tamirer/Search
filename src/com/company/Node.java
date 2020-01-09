@@ -24,7 +24,9 @@ public class Node {
         this.children = new ArrayList<>();
     }
 
-    public List<Node> expand() {
+    //TILE PUZZLE
+
+    /*public List<Node> expand() {
        // if(!children.isEmpty())
          //   return children;
         List<Node> res = new ArrayList<>();
@@ -61,7 +63,31 @@ public class Node {
         /*for (int i = 0; i < state.board.length; i++) {
             if(state.board[i] != otherNode.state.board[i])
                 return false;
-        }*/
+        }
         return Arrays.equals(state.board,otherNode.state.board);
+    }*/
+
+        public List<Node> expand() {
+        List<Node> res = new ArrayList<>();
+        State s = state;
+        for(GraphNode n : s.loc.neighbours){
+            State newState = s.applyMove(n);
+            res.add(new Node(this,newState,newState.calcH(),newState.totalCost - s.totalCost));
+        }
+        return res;
+    }
+
+    @Override
+    public String toString(){
+        return "loc: " + state.loc;
+    }
+
+    @Override
+    public boolean equals(Object other){
+        if(!(other instanceof Node))
+            return false;
+        Node otherNode = (Node)other;
+
+        return this.state.loc.id == otherNode.state.loc.id;
     }
 }
